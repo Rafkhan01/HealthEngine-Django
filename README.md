@@ -27,15 +27,15 @@ GET /ml_api/predict/?symptoms=<binary_symptom_vector>
 ### Example Request
 
 ```
-http://127.0.0.1:8000/ml_api/predict/?symptoms=1,0,1,0,0,1
+[http://127.0.0.1:8000/ml_api/predict/?symptoms=1,0,1]
 ```
 
 ### Example Response
 
 ```json
 {
-  "predicted_disease": "Fungal infection",
-  "confidence": 0.94
+  "prediction": "Urinary tract infection",
+  "confidence": 0.033225840384561986
 }
 ```
 
@@ -43,7 +43,7 @@ http://127.0.0.1:8000/ml_api/predict/?symptoms=1,0,1,0,0,1
 
 ## Tech Stack
 
-- Python 3.x
+- Python 3.13
 - Django
 - Scikit-learn
 - Pandas
@@ -57,22 +57,29 @@ http://127.0.0.1:8000/ml_api/predict/?symptoms=1,0,1,0,0,1
 ```
 disease-prediction-django-api/
 │
-├── disease_api/               # Django project settings
+├── core/                          # Django project configuration
 │   ├── settings.py
 │   ├── urls.py
+│   ├── asgi.py
 │   └── wsgi.py
 │
-├── ml_api/                    # Django app handling predictions
-│   ├── views.py               # Prediction logic and API response
-│   ├── urls.py                # Endpoint routing
-│   └── apps.py
+├── ml_api/                        # Django app handling predictions
+│   ├── views.py                   # Prediction logic and API response
+│   ├── urls.py                    # Endpoint routing
+│   ├── predictor.py               # ML model loading and inference
+│   ├── apps.py
+│   ├── models.py
+│   ├── disease_model.pkl          # Trained Random Forest model
+│   ├── label_encoder.pkl          # Fitted label encoder
+│   ├── vectorizer.pkl             # Feature vectorizer
+│   ├── dataset.csv                # Symptom-disease training dataset
+│   ├── Symptom-severity.csv       # Symptom severity reference
+│   ├── symptom_Description.csv    # Disease description reference
+│   ├── symptom_precaution.csv     # Disease precaution reference
+│   ├── medicine_filtered.csv      # Medicine recommendation dataset
+│   └── requirements.txt
 │
-├── models/                    # Serialized ML model files
-│   ├── disease_model.pkl
-│   └── label_encoder.pkl
-│
-├── manage.py
-└── requirements.txt
+└── manage.py
 ```
 
 ---
@@ -82,8 +89,8 @@ disease-prediction-django-api/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/Rafkhan01/disease-prediction-django-api.git
-cd disease-prediction-django-api
+git clone https://github.com/Rafkhan01/HealthEngine-Django.git
+cd HealthEngine-Django
 ```
 
 ### 2. Create a virtual environment and install dependencies
@@ -91,7 +98,7 @@ cd disease-prediction-django-api
 ```bash
 python -m venv venv
 source venv/bin/activate        # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+pip install -r ml_api/requirements.txt
 ```
 
 ### 3. Run the development server
@@ -117,7 +124,7 @@ curl "http://127.0.0.1:8000/ml_api/predict/?symptoms=1,0,1,0,0,1,0,0,0,0,0,0,0,0
 - Accuracy: 85%+ classification accuracy on symptom-disease mapping
 - Output: Predicted disease label decoded via a fitted LabelEncoder
 
-The trained model (`disease_model.pkl`) and encoder (`label_encoder.pkl`) are loaded once at application startup for efficient repeated inference.
+The trained model and supporting files are loaded at request time via `predictor.py` for clean separation of inference logic from the Django view layer.
 
 ---
 
