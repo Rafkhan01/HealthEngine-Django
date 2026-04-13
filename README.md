@@ -8,34 +8,34 @@ Live demo of the original Streamlit application: https://ai-healthcare-system-ja
 
 ## Overview
 
-The core ML model was trained using Scikit-learn on a labeled symptom-disease dataset. This repository wraps that model in a Django application, making predictions accessible via a simple GET request with symptom flags passed as query parameters.
+The core ML model was trained using Scikit-learn on a labeled symptom-disease dataset. This repository wraps that model in a Django application, making predictions accessible via a simple GET request with symptom names passed as query parameters.
 
 ---
 
 ## API Endpoint
 
 ```
-GET /ml_api/predict/?symptoms=<binary_symptom_vector>
+GET /ml_api/predict/?symptoms=<symptom_name>,<symptom_name>,...
 ```
 
 ### Parameters
 
 | Parameter | Type   | Description                                                                 |
 |-----------|--------|-----------------------------------------------------------------------------|
-| symptoms  | string | Comma-separated binary values (1 or 0) representing presence or absence of each symptom in the dataset order |
+| symptoms  | string | Comma-separated symptom names matching the dataset vocabulary. Provide as many symptoms as applicable — more symptoms improve prediction confidence. |
 
 ### Example Request
 
 ```
-[http://127.0.0.1:8000/ml_api/predict/?symptoms=1,0,1]
+http://127.0.0.1:8000/ml_api/predict/?symptoms=chills,vomiting,high_fever,sweating,headache,nausea,muscle_pain,diarrhoea
 ```
 
 ### Example Response
 
 ```json
 {
-  "prediction": "Urinary tract infection",
-  "confidence": 0.033225840384561986
+  "prediction": "Malaria",
+  "confidence": 0.7469970007937576
 }
 ```
 
@@ -55,7 +55,7 @@ GET /ml_api/predict/?symptoms=<binary_symptom_vector>
 ## Project Structure
 
 ```
-disease-prediction-django-api/
+HealthEngine-Django/
 │
 ├── core/                          # Django project configuration
 │   ├── settings.py
@@ -112,7 +112,7 @@ python manage.py runserver
 Open a browser or use curl:
 
 ```bash
-curl "http://127.0.0.1:8000/ml_api/predict/?symptoms=1,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"
+curl "http://127.0.0.1:8000/ml_api/predict/?symptoms=chills,vomiting,high_fever,sweating,headache,nausea,muscle_pain,diarrhoea"
 ```
 
 ---
